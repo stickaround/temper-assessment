@@ -7,23 +7,24 @@ defineProps({
   posts: {
     type: Array as PropType<Post[]>,
     required: true
-  },
-  onMoveUp: {
-    type: Function as PropType<(index: number) => void>
-  },
-  onMoveDown: {
-    type: Function as PropType<(index: number) => void>
   }
 })
+
+const emit = defineEmits(['moveUp', 'moveDown'])
 </script>
 
 <template>
   <div>
     <h2 class="text-3xl font-bold text-white mb-8">Sortable Post list</h2>
-    <ul>
-      <li v-for="(post, index) in posts" :key="post.id">
-        <PostItem :post="post" :index="index" @move-up="onMoveUp" @move-down="onMoveDown" />
+    <transition-group tag="ul">
+      <li v-for="(post, index) in posts" :key="post.id" class="transition-transform duration-1000">
+        <PostItem
+          :post="post"
+          :index="index"
+          @move-up="emit('moveUp', index)"
+          @move-down="emit('moveDown', index)"
+        />
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>

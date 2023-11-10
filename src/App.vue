@@ -2,35 +2,35 @@
 import { reactive, onMounted } from 'vue'
 import { getPosts } from '@/services/apis'
 import { type Post, type Commit } from '@/types'
-import PostList from '@/components/posts/PostList.vue'
 import CommitList from '@/components/commits/CommitList.vue'
+import PostList from '@/components/posts/PostList.vue'
 
-const posts: Post[] = reactive([])
-const commits: Commit[] = reactive([])
+const posts = reactive<Post[]>([])
+const commits = reactive<Commit[]>([])
 
 onMounted(async () => {
   const initialPosts = await getPosts()
-  posts.push(...initialPosts.slice(0, 5))
+  posts.push(...initialPosts)
 })
 
-const handleMoveUp = (index: number) => {
+const moveUp = (index: number) => {
   const temp = posts[index]
   posts[index] = posts[index - 1]
   posts[index - 1] = temp
 
-  commits.push({ postId: temp.id, from: index, to: index - 1 })
+  commits.unshift({ postId: temp.id, from: index, to: index - 1 })
 }
 
-const handleMoveDown = (index: number) => {
+const moveDown = (index: number) => {
   const temp = posts[index]
   posts[index] = posts[index + 1]
   posts[index + 1] = temp
 
-  commits.push({ postId: temp.id, from: index, to: index + 1 })
+  commits.unshift({ postId: temp.id, from: index, to: index + 1 })
 }
 
-const handleTimeTravel = (index: number) => {
-  for (let i = commits.length - 1; i >= index; i--) {
+const timeTravel = (index: number) => {
+  for (let i = 0; i <= index; i++) {
     const { from, to } = commits[i]
 
     const temp = posts[from]
@@ -38,15 +38,15 @@ const handleTimeTravel = (index: number) => {
     posts[to] = temp
   }
 
-  commits.splice(index)
+  commits.splice(0, index + 1)
 }
 </script>
 
 <template>
   <main class="h-64 bg-gradient-to-br from-indigo-500 from-50% via-white via-50% to-white to-100%">
     <div class="container mx-auto grid grid-cols-2 gap-40 py-8">
-      <PostList :posts="posts" :on-move-up="handleMoveUp" :on-move-down="handleMoveDown" />
-      <CommitList :commits="commits" :on-time-travel="handleTimeTravel" />
+      <PostList :posts="posts" @move-up="moveUp" @move-down="moveDown" />
+      <CommitList :commits="commits" @time-travel="timeTravel" />
     </div>
   </main>
 </template>
