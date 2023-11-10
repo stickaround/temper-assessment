@@ -5,7 +5,7 @@ export type Post = {
 }
 
 export type Commit = {
-  id: number
+  postId: number
   from: number
   to: number
 }
